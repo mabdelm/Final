@@ -1,0 +1,8 @@
+---
+# vars file for apache
+web_pkg: httpd
+web_svc: httpd
+firewall_pkg: firewalld
+firewall_svc: firewalld
+
+

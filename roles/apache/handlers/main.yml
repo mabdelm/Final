@@ -1,0 +1,10 @@
+---
+# handlers file for apache
+- name: restart services
+  service:
+    name: "{{item}}"
+    state: restarted
+    enabled: true
+  loop: 
+    - "{{firewall_svc}}"
+    - "{{web_svc}}"

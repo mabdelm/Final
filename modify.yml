@@ -1,0 +1,19 @@
+---
+- name: Modify
+  hosts: all
+  tasks:
+  - name: modify
+    copy:
+      content: "Development"
+      dest: /etc/issue
+    when: inventory_hostname in groups['dev']
+  - name: Modify
+    copy:
+      content: "Test"
+      dest: /etc/issue
+    when: inventory_hostname in groups['test']
+  - name: modify
+    copy:
+      content: "Production"
+      dest: /etc/issue
+    when: inventory_hostname in groups['prod']  

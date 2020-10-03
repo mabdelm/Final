@@ -1,0 +1,13 @@
+---
+- name: Time sync
+  hosts: all
+  roles:
+    - rhel-system-roles.timesync
+  vars:
+    timesync_ntp_servers:
+      - hostname:  1.rhel.pool.ntp.org
+        iburst: yes
+  post_tasks:
+  - name: Set timezone
+    timezone: 
+      name: Africa/Cairo

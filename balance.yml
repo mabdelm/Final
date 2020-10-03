@@ -1,0 +1,12 @@
+---
+- name: Balance webservers
+  hosts: webservers,balancers
+  tasks:
+  - name: balance
+    include_role:
+      name: balancer
+    when: inventory_hostname in groups['balancers']
+- name: PHP
+  hosts: webservers
+  roles:
+    - phphello

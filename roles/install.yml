@@ -1,0 +1,6 @@
+---
+- src: https://github.com/geerlingguy/ansible-role-haproxy
+  name: balancer
+- src: https://github.com/geerlingguy/ansible-role-php/
+  name: phphello
+

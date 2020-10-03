@@ -1,0 +1,20 @@
+---
+- name: Create Empty hwreport
+  hosts: all
+  tasks:
+  - name: Touch file
+    file:
+      path: /root/hwreport.txt
+      state: touch
+  - name: Create file 
+    blockinfile: 
+      path: /root/hwreport.txt
+      block: >
+        INVENTORY_HOSTNAME: hostname
+        BIOS_VERSION: biosversion
+        TOTAL_MEMORY: memory
+        SDA_SIZE: sdasize
+        SDB_SIZE: sdbsize
+        SDC_SIZE: sdcsize
+
+

@@ -1,0 +1,33 @@
+---
+# tasks file for apache
+- name: Install the {{web_pkg}}
+  yum:
+    name: "{{web_pkg}}"
+    state: present
+- name: Enable and start {{web_pkg}}
+  service:
+    name: "{{web_svc}}"
+    state: started
+    enabled: true
+- name: Install {{firewall_pkg}}
+  yum:
+    name: "{{firewall_pkg}}"
+    state: present
+- name: Enable and start {{firewall_svc}}
+  service: 
+    name: "{{firewall_svc}}"
+    state: started
+    enabled: true
+- name: Permit the http traffic
+  firewalld:
+    service: http
+    immediate: yes
+    permanent: true
+    state: enabled
+- name: Copy the webcontent
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    setype: httpd_sys_content_t
+  notify: restart services  
+

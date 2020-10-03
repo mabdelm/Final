@@ -1,0 +1,40 @@
+---
+- name: create logical volumes
+  hosts: all
+  tasks:
+  - name: Check if volume group exist
+    debug:
+      msg: "VG Not found"
+    when: ansible_lvm['vgs']['research'] is not defined 
+  - name: Create logical volume
+    lvol:
+      lv: data
+      vg: research
+      size: "1500m"
+      state: present
+    when: 
+      - ansible_lvm['vgs']['research'] is defined
+      - ansible_lvm['vgs']['research']['free_g'] > "1.5"
+    notify: fs  
+  - name: Cannot create logical volume
+    debug:
+      msg: "LV Can not be created with following size"
+    when:
+      - ansible_lvm['vgs']['research'] is defined
+      - ansible_lvm['vgs']['research']['free_g'] < "1.5"
+  - name: create logical volume                  
+    lvol:                                              
+      lv: data
+      vg: research
+      state: present
+      size: "800m"
+    notify: fs  
+    when:                                               
+      - ansible_lvm['vgs']['research'] is defined       
+      - ansible_lvm['vgs']['research']['free_g'] < "1.5"
+    
+  handlers:
+  - name: fs
+    filesystem:
+      fstype: ext4
+      dev: /dev/research/data

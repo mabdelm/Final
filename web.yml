@@ -1,0 +1,28 @@
+---
+- name: Configure web
+  hosts: dev
+  tasks:
+  - name: Create Directory
+    file:
+      path: /var/www/html/webdev
+      state: directory
+      recurse: yes
+  - name: create directory
+    file: 
+      path: /Webdev
+      state: directory
+      recurse: yes
+      mode: 2775
+      group: apache
+      setype: httpd_sys_content_t
+  - name: create symbolic link
+    file:
+      src: /Webdev
+      dest: /var/www/html/webdev
+      state: link
+      force: yes
+  - name: use the copy 
+    copy:
+      content: "Development"
+      dest: /Webdev/index.html
+      setype: httpd_sys_content_t

@@ -1,0 +1,36 @@
+---
+- name: create users
+  hosts: all
+  vars_files:
+    - user_list.yml
+    - vault.yml
+  tasks:
+  - name: create groups
+    group:  
+      name: "{{item}}"
+      state: present
+    loop:
+      - devops
+      - opsmgr
+  - name: Create user in dev and test
+    user: 
+      name: "{{item.name}}"
+      groups: devops
+      password: "{{dev_pass | password_hash('sha512') }}"
+      state: present
+    loop: "{{user}}"
+    when: 
+      - inventory_hostname in groups['dev'] or inventory_hostname in groups['test']
+      - item.job == "developer"
+  - name: Create user in dev and test                                              
+    user:                      
+      name: "{{item.name}}"    
+      groups: opsmgr          
+      password: "{{mgr_pass | password_hash('sha512') }}"                          
+      state: present           
+    loop: "{{user}}"           
+    when:                      
+      - inventory_hostname in groups['prod']
+      - item.job == "manager"
+    
+    

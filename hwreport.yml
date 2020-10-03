@@ -1,0 +1,22 @@
+---
+- name: generate hwreport
+  hosts: all
+  tasks:
+  - name: replace
+    replace:
+      regexp: "{{item.src}}"
+      replace: "{{item.dest}}"
+      path: /root/hwreport.txt
+    loop:
+      - src: hostname
+        dest: "{{ansible_hostname | default('NONE') }} "
+      - src: memory
+        dest: "{{ansible_memtotal_mb | default('NONE') }}"
+      - src: biosversion
+        dest: "{{ansible_bios_version | default('NONE') }}"
+      - src: sdasize
+        dest: "{{ansible_devices['sda']['size'] | default('NONE') }}"
+      - src: sdbsize
+        dest: "{{ansible_devices['sdb']['size'] | default('NONE') }}"
+      - src: sdcsize
+        dest: "{{ansible_devices['sdc']['size'] | default('NONE') }}"

@@ -1,0 +1,4 @@
+You are attempting to run "subscription-manager" which requires administrative
+privileges, but more information is needed in order to do so.
+Authenticating as "root"
+cannot parse argument: ansible-2-for-rhel-8-x86_64-rpms

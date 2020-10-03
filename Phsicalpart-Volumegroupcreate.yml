@@ -1,0 +1,11 @@
+---
+
+
+- name: Create a physical partition
+  hosts: webservers
+  tasks: 
+  - name: Create volume group on webservers
+    lvg:
+      vg: vgnew
+      pvs: /dev/sdb1
+      state: present

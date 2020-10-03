@@ -1,0 +1,8 @@
+---
+- name: generate hosts
+  hosts: all
+  tasks:
+  - name: genearate hostsfile
+    template:
+      src: hosts.j2
+      dest: /etc/myhosts
