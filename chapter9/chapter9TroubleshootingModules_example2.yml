@@ -1,0 +1,12 @@
+---
+- name: Playbook to set the linux context on files and allow ports and set the selinux state to disabled
+  import_playbook: ./playbooks/chapter9TroubleshootingModules_example2_use_selinux_role.yml
+- name: This play will show you how to use the debugging modules
+  hosts: '*'
+  ignore_errors: true
+  vars_files:
+    - ./vars/chapter9TroubleshootingModules_example2_vars.yml
+  tasks:
+  - import_tasks: ./tasks/chapter9TroubleshootingModules_example2_tasks.yml
+   
+

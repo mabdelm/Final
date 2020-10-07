@@ -1,0 +1,18 @@
+---
+- name: Play to create Manage Scheduled process and boot process 
+  hosts: all
+  become: true
+  tasks: 
+  - name: Create a crontab job that will run from 09:00 pm till 16:59 from Monday to Friday  
+    cron:
+      name: Add date-time to a file
+      weekday: "1-5"
+      minute: "*/2"
+      hour: "09-15"
+      user: devops
+      job: "date > /home/devops/my_datetime_cron_job"
+      cron_file: /etc/cron.d/add-date-time  
+
+      
+      
+ 

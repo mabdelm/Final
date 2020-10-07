@@ -1,0 +1,29 @@
+---
+- name: This playbook will create volume group by assigning the physical volume /dev/sdb1
+  hosts: all
+  tasks: 
+  - name: Create volume group vgname 
+    lvg:
+      vg: vgname
+      state: absent
+  - name: create logical volume in vgname   
+    lvol:
+      vg: vgname
+      lv: lvname
+      size: 300M
+      state: absent
+  - name: this task will create ext4 fs on the lvname
+    filesystem:
+      fstype: ext4
+      dev: /dev/vgname/lvname
+  - name: mount the logical volume
+    mount:
+      name: /mnt
+      src: /dev/vgname/lvname
+      fstype: ext4
+      state: mounted 
+  - name: Extend the volume group by adding physical volume /dev/sdb2
+    lvg:
+      vg: vgname
+      pvs: /dev/sdb1,/dev/sdb2     
+    

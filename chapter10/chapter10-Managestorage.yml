@@ -1,0 +1,54 @@
+---          
+- name: Create partition volume groups 
+  hosts: all 
+  tasks:
+  - name: Create a 120 MB partion
+    parted:
+      device: /dev/sdb
+      number: 1
+      state: present
+      unit: MB
+      part_end: 120MB
+  - name: create-vg
+    lvg:
+      vg: test
+      pvs: /dev/sdb1
+      state: present
+      pesize: 16
+    when: inventory_hostname in groups['web']  
+- name: Create logical volume on volume group and mount FS
+  hosts: all
+  tasks:
+  - name: create logical volume
+    lvol:
+      vg: test
+      lv: lvtest
+      state: present
+      size: 70m
+    notify: create_FS
+  handlers:  
+  - name: create_FS
+    filesystem:
+      dev: /dev/test/lvtest
+      fstype: xfs
+      force: yes
+     
+- name: create mount point and mount persistently the /etc/fstab
+  hosts: all
+  tasks: 
+  - name: create a directory to be a mount point
+    file:
+      path: /home/ibm/templates/mount
+      state: directory
+      recurse: yes
+      mode: 0755
+      owner: ibm
+      group: ibm
+  - name: mount the logicalvolume
+    mount:
+      path: /home/ibm/templates/mount
+      src: /dev/test/lvtest
+      fstype: xfs
+      state: mounted
+      opts: rw,nosuid,noexec
+

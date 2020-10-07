@@ -1,0 +1,26 @@
+---
+- name: this playbook will cretae archive and check if it exists then register 
+  hosts: all
+  vars:
+    - sourcefile: /rhce/archive/
+    - archivefile: /rhce/archive/archive.tar.gz
+    - format: zip
+  tasks:
+  - name: create directory
+    file: 
+      path: "{{sourcefile}}"
+      state: directory
+      recurse: yes 
+  - name: create the archived file
+    archive:
+      path: "{{sourcefile}}"
+      dest: "{{archivefile}}"
+      format: "{{format}}"
+  - name: check to see if the archive existes
+    stat:
+      path: "{{archivefile}}"
+    register: existornot
+  - name: print the results of the previous task using debug module
+    debug:
+      var: existornot
+    

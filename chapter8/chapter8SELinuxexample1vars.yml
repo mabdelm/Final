@@ -1,0 +1,8 @@
+file:
+  - name: Chapter8selinuxfile1
+    setype: httpd_config_t
+  - name: Chapter8selinuxfile2
+    setype: default_t
+  - name: chapter8selinuxfile3
+    setype: samba_share_t
+path: /home/ibm/templates/

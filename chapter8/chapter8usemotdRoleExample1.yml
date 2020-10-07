@@ -1,0 +1,8 @@
+---
+- name: This playbook will use the motd role that was created using the ansible-galaxy init motd
+  hosts: localhost
+  vars: 
+    system_owner: mabdelm@eg.ibm.com
+  roles:
+    - role: motd
+      system_owner: moh_ahmed_92@hotmail.com

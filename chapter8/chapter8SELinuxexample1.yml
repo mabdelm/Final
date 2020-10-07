@@ -1,0 +1,34 @@
+---
+- name: This play will set the the selinux context on files and directory using the command module
+  hosts: '*'
+  force_handlers: yes
+  vars_files:
+    - chapter8SELinuxexample1vars.yml 
+  tasks:
+  - name: This task will touch a file and set the setype on file defined in the vars file
+    file:
+      path: "{{path}}/{{item.name}}"
+      state: touch
+      owner: ibm
+      group: root
+      setype: "{{item.setype}}" 
+    loop: "{{file}}"
+  - name: set the context using sefcontext module
+    sefcontext:
+      target: "{{path}}/{{item.name}}"
+      setype: "{{item.setype}}"
+      state: absent
+    loop: "{{file}}"
+    notify: selinux context updated
+  handlers:
+  - name: selinux context updated
+    include_tasks: /rhce/tasks/chapter8SELinuxexample1handlerstasks.yml
+    vars:
+      file:
+        - name: Chapter8selinuxfile1
+          setype: httpd_config_t
+        - name: Chapter8selinuxfile2
+          setype: default_t
+        - name: chapter8selinuxfile3
+          setype: samba_share_t
+          path: /home/ibm/templates/                           

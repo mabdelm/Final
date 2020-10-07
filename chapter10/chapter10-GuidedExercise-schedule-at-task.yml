@@ -1,0 +1,26 @@
+---
+- name: Schedule jobs using the at and cron modules
+  hosts: all
+  become: true
+  vars:
+    path_at: /home/devops/my_at_date_time
+    path_cron: /home/devops/my_Cron_date_time
+  tasks:  
+  - name: Schedule a task to run 1 minute later in the future to write the date to a file 
+    at:
+      command: "date > {{ path_at }}"
+      count: 1
+      units: minutes
+      unique: yes
+      state: present
+  - name: Schedule a crontab job and create crontab file
+    cron:
+       name: Add date time 
+       user: devops
+       cron_file: /etc/cron.d/add-date-time
+       job: "date > {{path_cron}} " 
+       minute: "*/2"
+       weekday: "1-5"
+       hour: "09-15"       
+  
+

@@ -1,0 +1,20 @@
+---
+- name: Play to list packages 
+  hosts: all
+  tasks:
+  - name: Gather info on installed packages
+    package_facts:
+      manager: auto 
+  - name: list the installed packages 
+    debug:
+      var: ansible_facts.packages  
+    register: packages 
+  - name: Print the version of grub2-pc Package
+    debug:
+      msg: "{{ansible_facts.packages['grub2-pc'][0].version}}"
+  - name: Print the version of the Network manager package
+    debug:
+      msg: "{{ansible_facts.packages['NetworkManager'][0].version}}"
+  - name: Print the version of yum
+    debug:
+      msg: "{{ansible_facts.packages['yum'][0]['version']}}"   

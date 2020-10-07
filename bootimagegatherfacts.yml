@@ -1,0 +1,9 @@
+---
+- name: this playbook to get the facts of the boot image
+  hosts: all
+  tasks:
+  - name: this Task to get the boot image
+    debug:
+      msg: >
+        This is the boot image {{ansible_facts['cmdline']['BOOT_IMAGE']}}
+

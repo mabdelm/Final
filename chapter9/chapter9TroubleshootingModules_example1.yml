@@ -1,0 +1,36 @@
+---
+- name: This play will show the modules used in troubleshooting like stat , assert , debug ,uri
+  hosts: localhost
+  tasks:
+  - name: debug module to print message 
+    debug:
+      msg: "This show the following message"
+  - name: use the stat module to check if the file /var/run/app.lock exists 
+    stat:
+      path: /var/run/app.lock
+    register: lock   
+  - name: Print the lock variable 
+    debug:
+      var: lock 
+  - name: if the file exists means application is running we need it to fail when file  it exists 
+    fail:
+      msg: "Application is still running"
+    when: lock.stat.exists == true
+  - name: if the file doesn't exist application is not running 
+    debug:
+      msg: "Application is not running"
+    when: lock.stat.exists == false
+  - name: Use the assert module where it is an alternative to fail module 
+    stat:
+      path: /var/run/app.lock
+    register: lock 
+  - name: Fail if the application s running application is running when the file exists
+    assert:
+      fail_msg: "Application is running" 
+      that:
+        - not lock.stat.exists 
+
+
+#Assert module  will fail if the conditions are false 
+
+

@@ -1,0 +1,43 @@
+---
+# tasks file for mabdelm-apache.developer-config
+- name: Create users for developers
+  user:
+    name: "{{item.username}}"
+    state: present
+  loop: "{{web_developers}}" 
+- name: Give user ibm authorized access to all users by Adding authorized keys for Developers user 
+  authorized_key:
+    user: "{{item.username}}"
+    state: present
+    key: "{{ lookup('file', '/home/ibm/.ssh/id_rsa.pub') }}"
+  loop: "{{web_developers}}"  
+- name: Create Content Directory 
+  file:
+    path: /srv/{{item.username}}/var/www/html/
+    state: directory 
+    owner: "{{item.username}}"
+    mode: 0644
+  loop: "{{web_developers}}"
+- name: Create skelton index.html if needed
+  copy:
+    content: "This is index.html for user {{item.name}} {{item.username}} \n"
+    dest: "/srv/{{item.username}}/var/www/html/index.html"
+    owner: "{{item.username}}"
+    force: no 
+    group: root
+    mode: 0644
+  loop: "{{web_developers}}"
+- name: Set access to each user through it's port 
+  firewalld:
+    port: "{{item.port}}/tcp"
+    permanent: yes
+    state: enabled      
+  loop: "{{web_developers}}"  
+- name: Copy per Developer conf    
+  template:
+    src: /rhce/roles/mabdelm-apache.developer-configs/templates/dev.conf.j2
+    dest: "/etc/httpd/conf.d/developer{{item.username}}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  loop: "{{web_developers}}"  

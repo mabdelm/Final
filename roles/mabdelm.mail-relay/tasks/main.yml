@@ -1,0 +1,41 @@
+---
+# tasks file for mabdelm.mail-relay
+- name: Install post fix package
+  yum:
+    name: postfix 
+    state: latest
+- name: Install mail config file
+  template:
+    src: ./templates/main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart postfix
+- name: check main.cf file 
+  stat:
+    path: /etc/postfix/main.cf 
+  register: maincf
+- name: Print the variable  maincf
+  debug:
+    var: maincf
+- name: Fail if the main.cf doesn't exist 
+  fail:
+    msg: "the postfix main.cf configuration file doesn't exist"
+  when: maincf.stat.exists == false
+- name: Fail if the main.cf doesn't exist
+  fail:
+    msg: "the postfix main.cf mail configuration doesn't exist"
+  when: maincf.stat.exists is not defined
+- name: Check the always_bcc in the configuration file
+  command: /usr/sbin/postconf always_bcc
+  register: bcc_state
+- name: Print the bcc_state
+  debug:
+    var: bcc_state
+- name: Send mail with the bcc_state
+  mail:
+    to: moh_ahmed_92@hotmail.com
+    subject: 'Always bcc setting not empty '
+    body:  "always_bcc setting is {{bcc_state.stdout}}"
+  when: bcc_state.stdout != 'always_bcc='  

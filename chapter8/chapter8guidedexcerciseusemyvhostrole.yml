@@ -1,0 +1,17 @@
+---
+- name: Use myvhost Role Playbook this is chapter 8 guided excercise to use created myvhost role
+  hosts: all 
+  roles:
+    - myvhost
+  pre_tasks:
+  - name: Pre tasks messages 
+    debug:
+      msg: "Ensure web server configuration"
+  post_tasks:
+  - name: HTML content is installed 
+    copy:
+      src: file/html/
+      dest: "/var/www/vhosts/{{ansible_hostname}}"
+  - name: Post_tasks_messages
+      debug:
+        msg: 'wer server is configured'

@@ -1,0 +1,19 @@
+---
+- name: Configure and Manage Networking 
+  hosts: all
+  roles:
+    - rhel-system.roles.network
+  vars:
+    network_provider: nm
+    network_connections:
+      - name: ens4-profile
+        type: ethernet
+        state: down
+        persistent_state: absent
+        interface_name: ens4
+        ip:
+          address:
+            - 172.25.250.30/24
+
+
+

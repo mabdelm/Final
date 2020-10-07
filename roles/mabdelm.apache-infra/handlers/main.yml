@@ -1,0 +1,12 @@
+---
+# handlers file for mabdelm.apache-infra
+- name: restart firewalld
+  service:
+    name: firewalld
+    state: restarted 
+    enabled: true
+- name: restart httpd
+  service:
+    name: httpd
+    state: restarted 
+    enabled: true

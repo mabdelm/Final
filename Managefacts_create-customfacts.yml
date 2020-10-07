@@ -1,0 +1,46 @@
+---
+- name: Gather ansible facts from managed hosts and use them in a play
+  hosts: localhost
+  tasks:
+  - name: Create a file customfacts.fact in the directory /home/ibm/
+    file:
+      path: /home/ibm/customfacts.fact
+      state: touch 
+      mode: 0777
+  - name: Put the customized facts in the previously created file
+    blockinfile:
+      path: /home/ibm/customfacts.fact
+      block: |
+        [general]
+        package = httpd
+        service = httpd
+        state = present
+        enabled = true
+- name: This play will set the customized facts on managed hosts by copying the customfacts.fact to /etc/ansible/facts.d
+  hosts: all
+  vars:
+    remote_dir: /etc/ansible/facts.d/
+    facts_file: /home/ibm/customfacts.fact
+
+  tasks:
+  - name: this task will copy the custom facts file to managed hosts        
+    copy:
+      src: "{{facts_file}}"
+      dest: "{{remote_dir}}"
+  - name: print the custom facts to be sure
+    debug:
+      msg: "{{ansible_local['customfacts']['general']['package']}}"   
+- name: Main playbook that will use the customizied facts to install and start Apached web service
+  hosts: all
+  tasks:
+  - name: This task will install the httpd package
+    yum: 
+      name: "{{ansible_local['customfacts']['general']['package']}}"
+      state: present
+  - name: start the service
+    service:
+      name: "{{ansible_local['customfacts']['general']['service']}}"
+      state: started
+      enabled: "{{ansible_local['customfacts']['general']['enabled']}}"
+      
+

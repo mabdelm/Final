@@ -1,0 +1,16 @@
+---
+- name: Playbook to create crontab entry that will run play books automatically
+  hosts: localhost 
+  tasks:
+  - name: this task to create crontab entry on managed hosts
+    cron:
+      name: Ensure a job that runs at 06:21 that will run the playbook from the local host"
+      user: "ibm"
+      minute: "21"
+      hour: "06"
+      job: "/usr/bin/ansible-playbook /home/user1/yourplaybook.yml"
+      state: absent
+      
+      
+        
+                           

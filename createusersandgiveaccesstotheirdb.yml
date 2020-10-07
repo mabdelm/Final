@@ -1,0 +1,44 @@
+---
+- name: This Playbook will create create user for group beatles and allow each user to access his DB
+  hosts: all
+  vars:
+    beatles:
+      - john
+      - paul
+      - george
+      - ringo
+    dbservices: 
+      - mariadb
+      - mariadb-client
+    category_db:
+      - lyrics
+      - concerts
+      - instruments
+  tasks:
+  - name: This task will create user in the group beatles 
+    user:
+      name: "{{item}}"
+      state: present
+    loop: "{{beatles}}"
+  - name: install the db packages 
+    yum:
+      name: "{{item}}"
+    loop: "{{dbservices}}"
+  - name: start and enable mariadb service
+    service:
+      name: mariadb 
+      state: started 
+      enabled: true
+  - name: include passwords from ansible vault
+    include_vars:
+      file: /rhce/chapter5pass.yml 
+  
+  - name: allow userto have access to their DB
+    mysql_user:
+      name: "{{item[0]}}"
+      priv: "{{item[1]}}"
+      password: "{{db_password}}"
+    with_nested:
+      - "{{beatles}}"
+      - "{{category_db}}"
+   

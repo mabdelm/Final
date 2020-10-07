@@ -1,0 +1,15 @@
+---
+- name: Play to Set the boot default target to graphical .target 
+  hosts: all
+  vars:
+    - graphical_target: /usr/lib/systemd/system/graphical.target
+    - default_target: /etc/systemd/system/default.target
+  tasks:
+  - name: Set the default boot target to be graphical
+    file:
+      src: "{{graphical_target}}"
+      dest: "{{default_target}}"
+      state: link  
+
+  
+

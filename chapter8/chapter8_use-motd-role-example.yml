@@ -1,0 +1,12 @@
+---
+- name: This play will use the motd role to configure the banner message on managed hosts
+  hosts: '*'
+  roles:
+    - motd-role
+  vars:
+    system_owner: mohamed abdelmageed
+  pre_tasks:
+  - name: This is a pre_task that will run before roles
+    debug:
+      msg: "Pre task always runs before roles"
+   

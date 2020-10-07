@@ -1,0 +1,17 @@
+---
+- name: This playbook will use the roles created to configure and setup the webserver for developers  
+  hosts: all
+  roles:
+    - mabdelm.apache-infra
+    - mabdelm-apache.developer-config
+  vars_files:
+    - /rhce/vars/Chapter8LabProvideWebServervars.yml 
+  vars:
+    services:
+      - httpd
+      - firewalld
+    packages: 
+      - httpd
+      - firewalld
+# This playbook will use the roles created to configure and setup the webserver for developers each developer is given a directory on the on the development server to host code and content each developer will access it using an assigned and non standard port
+

@@ -1,0 +1,12 @@
+---
+- name: Play will set the default boot target to multi-user 
+  hosts: all 
+  vars:
+    multi_user_target: /usr/lib/systemd/system/multi-user.target 
+    default_target: /etc/systemd/system/default.target
+  tasks:  
+  - name: Make the default target multi-user.target 
+    file:
+      src: "{{multi_user_target}}"
+      dest: "{{default_target}}"
+      state: link

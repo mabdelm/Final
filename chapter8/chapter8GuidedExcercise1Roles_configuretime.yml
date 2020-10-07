@@ -1,0 +1,9 @@
+---
+- name: This playbook will configure the time synchronization on the web & db hosts ans set the timezones based on locations variables defined in the group_vars directory 
+  hosts: all
+  roles:
+    - rhel-system-roles.timesync
+  post_tasks:
+  - name: Set the timezone on hosts the timezone variable is defined in groups_vars
+    timezone:
+      name: "{{timezone}"

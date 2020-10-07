@@ -1,0 +1,16 @@
+---
+- name: this play book will update the web servers 1 by 1 as we don't need to be out of service use serial keyword
+  hosts: all
+  serial: 1
+  tasks:
+  - name: This task will update the httpd package
+    yum:
+      name: httpd
+      state: latest
+    notify: restart apache
+  handlers:             
+  - name: restart apache
+    service:
+      name: httpd
+      state: restarted
+

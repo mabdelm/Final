@@ -1,0 +1,29 @@
+---
+- name: remote home dirs for users except the users defined below
+  hosts: all
+  vars:
+    directories:
+      - junos
+      - ibm
+      - devops
+  tasks:
+  - name: List the directories in the /test
+    command: 'ls  /test/'
+    register: output
+  - name: print out
+    debug:
+      var: output
+  - name: Loop on the stdout_lines and print the results 
+    debug:
+      var: item 
+    loop: "{{output['stdout_lines']}}"
+    register: dir
+  - name: Print directory name
+    debug:
+      msg: "Hello"
+    when:  item[0] == item[1]
+    with_nested:
+      - "{{output['stdout_lines']}}"
+      - "{{directories}}"
+   
+     

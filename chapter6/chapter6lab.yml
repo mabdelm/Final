@@ -1,0 +1,64 @@
+---
+- name: This is chapter 6 Lab for deploying files to managed hosts 
+  hosts: all
+  force_handlers: true
+  vars:
+    jinjatemplatefile: /rhce/chapter6lab.j2
+    files:
+      - /home/ibm/templates/files/issue/file1
+      - /home/ibm/templates/files/issue/file2
+      - /home/ibm/templates/files/issue/issue.net
+  tasks:
+  - name: This task will use template module to have a file that have hosts facts
+    template:
+      src: "{{jinjatemplatefile}}"
+      dest: /home/ibm/templates/chapter6labmotd
+      mode: 0644
+      owner: root
+      group: root
+    when: ansible_facts['fqdn']=="ansible2.example.com" and ansible_facts['processor_count'] >=2
+  - name: use the command module then register the result 
+    command: sudo ls -l /home/ibm/templates/chapter6labmotd 
+    register: result
+  - name: use the debug module 
+    debug:
+      msg: "{{result.stdout}}" 
+  - name: use the stat module to ensure that file exist 
+    stat:
+      path: /home/ibm/templates/chapter6labmotd
+    register: filestat
+  - name: use the debug module to print the filestat
+    debug:
+      var: filestat
+  - name: use the debug module to print message that file exists 
+    debug:
+      msg: File Exists :)
+    when: filestat.stat.exists
+  - name: this task will touch a directory /home/ibm/templates/files/issue 
+    file:
+      state: directory 
+      recurse: yes
+      path: /home/ibm/templates/files/issue 
+  - name: touch files in the directory /home/ibm/templates/files/issue 
+    file:
+      path: "{{item}}"
+      state: touch 
+      setype: httpd_config_t
+    loop: "{{files}}"
+  - name: set the secontext permanent on files 
+    sefcontext:
+      target: "{{item}}"
+      setype: httpd_config_t
+      state: present
+    loop: "{{files}}"
+    notify:
+      - sefcontext
+  handlers:
+  - name: sefcontext
+    command: firewall-cmd --reload
+  - name: use the copy module place file in the /home/ibm/templates/files/issue to /home/ibm/templates
+    copy:
+      src: "{{item}}"
+      dest: /home/ibm/templates/
+      follow: yes
+    loop: "{{files}}"  

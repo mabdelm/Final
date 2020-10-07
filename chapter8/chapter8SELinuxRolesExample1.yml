@@ -1,0 +1,35 @@
+---
+- name: This playbook will configure the selinux file contexts on files using the selinux role
+  hosts: '*.example.com'
+  vars:
+    - selinux_state: enforcing       
+    - selinux_booleans:
+        - name: 'httpd_enable_homedirs'
+          state: 'on'
+          persistent: 'yes'
+        - name: 'ssh_sysadm_login'
+          state: 'on'
+          persistent: 'yes'
+    - selinux_fcontexts: 
+        - target: '/home/ibm/templates(/.*)?'
+          setype: default_t
+          state: present      
+    - selinux_restore_dirs:
+            - /home/ibm/templates      
+  tasks:     
+  - name: Apply SELinux role
+    block:
+      - name: This task will include the selinux role
+        include_role:
+          name: rhel-system-roles.selinux
+    rescue:   
+      - name: Fail if system_reboot_required is set to false else reboot and rerun the role
+        fail:
+          msg: "Fails cause system_reboot_required set to false"
+        when: not selinux_reboot_required  
+      - name: Reboot the managed hosts
+        reboot:
+      - name: Reapply selinux to complete changes
+        include_role:
+          name: rhel-system-roles.selinux   
+

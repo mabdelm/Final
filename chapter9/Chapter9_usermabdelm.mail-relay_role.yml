@@ -1,0 +1,33 @@
+---
+- name: This play will use the mail relay role to install the postfix and set the configuration main.cf in the /etc/postfix/main.cf and print the bcc state
+  hosts: '*'
+  roles:
+    - mabdelm.mail-relay
+  post_tasks:
+  - name: Apply the Selinux
+    block:
+    - name: Apply the selinux role
+      include_role:
+        name: rhel-system-roles.selinux
+    rescue:
+    - name: Fail if the selinux_reboot reuqired is false
+      fail:
+        msg: The host require reboot
+      when: not selinux_state_required 
+    - name: Reboot hosts
+      reboot:
+    - name: Apply the selinux configuration 
+      include_role:
+        name: rhel-system-roles.selinux
+     
+  vars:
+    selinux_ports:
+       ports: '25'
+       proto: 'tcp'
+       setype: 'ssh_port_t'
+       state: 'present' 
+    selinux_state: enforcing
+    selinux_policy: targeted
+    
+  
+   

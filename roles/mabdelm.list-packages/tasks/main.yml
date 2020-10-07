@@ -1,0 +1,12 @@
+---
+# tasks file for mabdelm-list-packages
+- name: Gather packages facts
+  package_facts:
+    manager: auto
+- name: List the packages 
+  debug: 
+    var: ansible_facts['packages']
+- name: Print the packages version 
+  debug:
+    msg: "{{ansible_facts['packages'][item][0]['version']}}"
+  loop: "{{ pkg_name }}"  

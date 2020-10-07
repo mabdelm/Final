@@ -1,0 +1,25 @@
+---
+- name: chapter7 import taks guided excercise to setup webserver
+  hosts: ansible1.example.com
+  tasks:
+  - include_tasks: ./tasks/chapter7guidedexcerciseimportfilesenvironment.yml
+    vars:
+      package: httpd
+      service: httpd
+    when: ansible_facts['os_family'] == "RedHat" 
+  - import_tasks: ./tasks/chapter7guidedexcerciseimportfilefirewall.yml
+    vars:
+      firewall_pkg: firewalld
+      firewall_svc: firewalld
+      rule:
+        -  http
+        - https
+  - import_tasks: ./tasks/chapter7guidedexcerciseimportfileplaceholder.yml
+    vars:
+      file: /var/www/html/index.html
+- name: Second play use the import_playbooks to test the webserver 
+  import_playbook: chapter7guidedexcerciseimporttest.yml
+  vars:
+    url: http://ansible1.example.com
+  
+      

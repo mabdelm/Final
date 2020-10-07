@@ -1,0 +1,63 @@
+---
+- name: Configue the ftp servers
+  hosts: ftpservers
+  vars_files:
+    - /rhce/chapter11-Labs/chapter11-Labs-CreatePlaybooks/vars/defaults-template.yml
+    - /rhce/chapter11-Labs/chapter11-Labs-CreatePlaybooks/vars/vars.yml
+  tasks:
+  - name: Install the {{vsftpd_package}}
+    yum:
+      name: "{{vsftpd_package}}"
+      state: absent
+  - name: Start the {{vsftpd_service}}
+    service: 
+      name: "{{vsftpd_service}}"
+      state: started
+      enabled: true
+  - name: Deploy the vsftd config file to {{vsftpd_config_file}}
+    template:
+      src: /rhce/chapter11-Labs/chapter11-Labs-CreatePlaybooks/templates/vsftpd.conf.j2
+      dest: "{{vsftpd_config_file}}"
+      owner: root
+      group: root
+      mode: 0600
+      setype: etc_t    
+    notify: restart vsftpd
+  - name: remove the config file
+    file:
+      path: "{{vsftpd_config_file}}"
+      state: absent
+  - name: install the firewalld
+    yum:
+      name: firewalld
+      state: present
+  - name: Start the service and enable
+    service:
+      name: firewalld
+      state: started
+      enabled: true
+  - name: Permit the FTP traffic
+    firewalld:
+      service: ftp
+      permanent: true
+      immediate: yes
+      state: absent
+  - name: FTP passive date ports are open
+    firewalld:
+      port: 21000-21020/tcp
+      permanent: true
+      immediate: yes
+      state: absent
+    notify: restart firewalld
+  handlers:
+  - name: restart vsftpd
+    service: 
+      name: "{{vsftpd_service}}"
+      state: restarted
+      enabled: true
+  - name: restart firewalld
+    service: 
+      name: firewalld
+      state: restarted
+      enabled: true
+  

@@ -1,0 +1,34 @@
+---
+- name: create a swap partition
+  hosts: all
+  tasks:
+  - name: create volume group 
+    lvg:
+      vg: swapvg
+      pvs: /dev/sdb1
+      pesize: 16
+      force: yes
+      state: absent
+  - name: create logical volume
+    lvol:
+      lv: swaplv
+      vg: swapvg
+      force: yes
+      state: absent
+      size: 80m
+  - name: Format swap and activate     
+    block:
+      - name: make swap on the logical volume
+        command: mkswap /dev/swapvg/swaplv
+      - name: make swapon
+        command: swapon /dev/swapvg/swaplv
+        when: ansible_swaptotal_mb < 2200
+        notify: mount
+  handlers:
+  - name: mount
+    mount: 
+      path: swap
+      src: /dev/swapvg/swaplv
+      fstype: swap
+      opts: defaults
+      state: mounted

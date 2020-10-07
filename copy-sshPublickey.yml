@@ -1,0 +1,13 @@
+---
+- name: Play will Ensure ssh public keys existing on users 
+  hosts: all
+  vars: 
+    user: devops
+  tasks:
+  - name: Set authorizied key defining key options    
+    authorized_key:
+      user: "{{user}}"
+      state: present
+      key: "{{ lookup('file', '/home/ibm/.ssh/id_rsa.pub') }}"
+      
+

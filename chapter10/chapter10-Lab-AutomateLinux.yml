@@ -1,0 +1,164 @@
+---
+- name: Play to configure software repository ,Users & groups , Logical volumes ,Cron jobs ,Network
+  hosts: all
+  ignore_errors: yes
+  vars:
+    baseurl: http://materials.example.com/yum/repository
+    gpgkey: http://materials.example.com/yum/repository/RPM-GPG-example
+  tasks:
+  - name:
+    yum_repository:
+      name: repo
+      description: Internal Repository 
+      file: rhel-repo
+      baseurl: "{{ baseurl }}"
+      gpgkey: "{{ gpgkey }}"
+      gpgcheck: yes
+      state: absent
+      enabled: true
+  - name: Install the example-motd package
+    yum: 
+      name: example-motd 
+      state: absent
+- name: Create users and groups
+  hosts: all
+  vars:
+    group: webadmin
+    user:
+      - name: ops1
+        group: webadmin
+        shell: /bin/bash
+      - name: ops2
+        group: webadmin
+        shell: /bin/bash
+  tasks:
+  - name: Create Group
+    group:
+      name: "{{ group }}"
+      state: absent
+  - name: Add users and assign to groups
+    user:
+      name: "{{ item.name }}"
+      groups: "{{ item.group }} "
+      shell: "{{ item.shell }}"
+      create_home: false
+      state: absent
+    loop: "{{user}}"    
+- name: Create Logical volumes 
+  hosts: all
+  vars:
+    directory:
+     -  path: /home/ibm/templates/chapter10-Lab-var/www
+        setype: httpd_sys_content_t
+        mode: 0644
+     - path: /home/ibm/templates/chapter10-Lab-var/
+       setype: var_log_t
+       mode: 0644
+      
+    partitions:
+      - device: /dev/sdb
+        number: 1
+        start: 1MiB
+        end: 120MiB
+    volume_groups:
+      - name: apache-vg
+        devices: /dev/sdb1
+    logical_volumes:
+      - name: content-lv
+        vgroup: apache-vg
+        size: 60M
+        mount_path: /home/ibm/templates/chapter10-Lab-var/www
+      - name: logs-lv  
+        vgroup: apache-vg
+        size: 40M
+        mount_path: /home/ibm/templates/chapter10-Lab-var/
+  tasks:
+  - name:   create Partition 
+    parted:
+      device: "{{item.device}}"
+      number: "{{item.number}}"
+      state: present
+      part_start: "{{item.start}}"
+      part_end: "{{item.end}}"
+    loop: "{{partitions}}"  
+  - name: Create volume group
+    lvg:
+      vg: "{{item.name}}"
+      pvs: "{{item.devices}}"
+      state: present
+    loop: "{{volume_groups}}"  
+  - name: Create logical volumes
+    lvol:
+      lv: "{{item.name}}"
+      vg: "{{item.vgroup}}"
+      size: "{{item.size}}"
+      state: present
+    loop: "{{logical_volumes}}"  
+  - name: Create XFS File system on logical volumes
+    filesystem:
+      dev: "/dev/{{item.vgroup}}/{{item.name}}"
+      fstype: xfs
+    loop: "{{logical_volumes}}"
+  - name: print the logical volumes
+    debug: 
+      msg: "{{ansible_facts['lvm']['lvs']}}"
+  - name: Check if the logical volume cpacity doesn't exist 
+    lvol:
+      lv: "{{item.name}}"
+      vg: "{{item.vgroup}}"
+      state: present
+      force: yes
+      resizefs: yes
+      size: "{{item.size}}"
+    loop: "{{logical_volumes}}"  
+    when: item.name not in ansible_lvm['lvs']  
+  - name: create the mount Point directories and set the selinux context on them  
+    file:
+      path: "{{item.path}}"
+      state: directory
+      recurese: yes
+      mode: "{{item.mode}}"
+      setype: "{{item.setype}}"
+  - name: Mount the logical volumes in their specified mount points 
+    mount:
+      path: "{{item.mount_path}}"
+      src: /dev/{{item.vgroup}}/{{item.name}}
+      fstype: xfs
+      state: mounted 
+      opts: noatime
+    loop: "{{logical_volumes}}"  
+- name: Create a cron job and use the RHEL system roles to cinfigure ntp on managed hosts and networking  
+  hosts: all
+  roles:
+    - rhel-system-roles.timesync
+    - rhel-system-roles.network
+  tasks: 
+  - name: Create a crontab job
+    cron:
+      name: disk-usage
+      cron_file: 'disk-usage'
+      user: devops
+      hour: '09-17'
+      minute: '*/2'
+      weekday: 1-5
+      job: "df > /home/ibm/templates/chapter10-Lab-disk_usage"
+  vars:
+    network_provider: nm
+    network_connections:
+      - name: ens4-profile
+        type: ethernet
+        interface_name: ens4
+        state: down 
+        ip:
+          address:
+            - 192.168.0.1/24
+          gateway4: 192.168.0.1  
+    timesync_ntp_servers:
+        hostname: 0.rhel.pool.ntp.org
+        iburst: yes
+   
+      
+
+        
+
+       

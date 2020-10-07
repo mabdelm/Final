@@ -1,0 +1,29 @@
+---
+- name: This play will configure selinux boolean and selinux and contexts using the selinux role
+  hosts: all
+  vars:
+    selinux_state: enforcing      
+    selinux_fcontexts:  
+      - target: '/home/ibm/templates(/.*)?'
+        setype: 'default_t'
+        ftype: 'd'
+        state: 'present'    
+    selinux_ports:
+      - ports: '8080'
+        proto: 'tcp'
+        setype: 'http_port_t'
+        state: 'present'
+  tasks:
+  - name: Apply SELinux 
+    block:
+      - include_role:
+          name: rhel-system-roles.selinux
+    rescue:      
+      - name: This task will fail if the selinux_reboot_required is false 
+        fail:
+        when: not selinux_reboot_required  
+      - name: Reboot the managed hosts
+        reboot:  
+      - name: Reaplly the selinux role
+        include_role:
+          name: rhel-system-roles.selinux

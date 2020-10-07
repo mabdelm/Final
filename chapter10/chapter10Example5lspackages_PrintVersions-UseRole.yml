@@ -1,0 +1,26 @@
+---
+- name: This play will use the role defined by mabdelm to gather package facts and print packages
+  hosts: '*'
+  roles:
+  - mabdelm.list-packages
+  vars:
+    pkg_name: 
+      - mariadb
+      - httpd 
+- name: This play will use the role to gather packages facts from managed hosts and print the versions of the sppecified packages 
+  hosts: all
+  vars: 
+    pkg_name:
+      - yum
+      - httpd
+  tasks:
+  - name: Gather packages facts
+    package_facts:
+      manager: auto
+  - name: List the packages
+    debug:
+      var: ansible_facts['packages']
+  - name: Print the packages version
+    debug:
+      msg: "{{ansible_facts['packages'][item][0]['version']}}"
+    loop: "{{ pkg_name }}"

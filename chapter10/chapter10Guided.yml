@@ -1,0 +1,74 @@
+---
+- name: Play will gather package facts and print the packages versions 
+  hosts: all
+  ignore_errors: yes
+  vars:
+    packages:
+      - httpd
+      - zip 
+      
+  tasks:
+  - name: Gather packages facts 
+    package_facts:
+      manager: auto 
+  - name: list the packages 
+    debug:
+      msg: "{{ansible_facts['packages']}}"
+  - name: print the versions of packages 
+    debug: 
+      msg: "{{ansible_facts['packages'][item][0]['version']}}"    
+    loop: "{{packages}}"
+  - name: Ensure Example repository exists 
+    yum_repository:
+      file: rhel
+      name: Internal Repo
+      description: Redhat linux 8 repository 
+      baseurl: http://materials.examples.com/yum/repository
+      gpgcheck: yes
+      gpgkey: https://materials.example.com/yum/repository/RPM-GPG-KEY
+      enabled: true
+      state: absent
+- name: Use the role created by mabdelm to create users 
+  hosts: all
+  ignore_errors: yes
+  vars: 
+    user: ibm
+  vars_files:
+    - /rhce/vars/chapter10Guided-vars.yml     
+  pre_tasks:
+  - name: create groups
+    group:
+      name: "{{item}}"
+      state: absent
+    loop: 
+      - Webadmin
+      - DBadmin       
+  roles:
+    - mabdelm.create-users
+- name: Play taht will schecdule jobs at a time and a cron job
+  hosts: all
+  ignore_errors: yes
+  tasks:
+  - name: Use the at to schedule a job 
+    at:
+      command: echo "Hello World"
+      count: 2
+      units: minutes
+      unique: yes
+  - name: use the cron job to create a file taht prints the dat from monday to friday from 9 am till 15 
+    cron:
+      name: date-time
+      user: devops
+      cron_file: date-time
+      hour: '9-5'
+      weekday: '1-5'
+      state: absent
+      minute: '0'
+      job: date > /home/ibm/templates/chapter10Guided-date-time
+
+  - name: set the default boot to be garphical.target
+    file:
+      src: /usr/lib/systemd/system/graphical.target
+      dest: /etc/systemd/system/default.target
+      state: link
+      

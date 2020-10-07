@@ -1,0 +1,25 @@
+---
+- name: This is The playbook to setup facts in the remote directory /etc/ansible/facts.d on the managed hosts
+  hosts: all
+  vars:
+    fact_file: /rhce/custom.fact
+    remote_dir: /etc/ansible/facts.d
+  tasks: 
+  - name: This task will create remote directory 
+    file:
+      state: directory
+      recurse: yes
+      path: "{{remote_dir}}"
+  - name: This task will copy the facts file to the remote directory
+    copy:
+      src: "{{fact_file}}"
+      dest: "{{remote_dir}}"
+  - name: install the Apache web server and start
+    yum:
+      name: "{{ansible_facts['ansible_local']['custom']['general']['http_pkg']}}"
+      state: latest
+  - name: start the web service 
+    service:
+      name: "{{ansible_facts['ansible_local']['custom']['general']['http_pkg']}}"
+      state: "{{ansible_facts['ansible_local']['custom']['general']['state']}}"
+      enabled: true

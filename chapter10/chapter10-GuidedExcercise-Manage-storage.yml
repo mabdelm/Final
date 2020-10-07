@@ -1,0 +1,97 @@
+---
+- name: Manage storage and create logical volumes and mount 
+  hosts: '*'
+  vars_files:
+    - /rhce/vars/chapter10-GuidedExcercise-Manage-storage-vars.yml 
+  tasks:  
+  - name: Create physical partition
+    parted:
+      device: /dev/sdb
+      number: "{{ item.number }}"
+      state: present
+      part_start: "{{ item.start }}"
+      part_end:  "{{ item.end }}"
+    loop: "{{partitions}}"
+  - name: Create volume group
+    lvg:
+      vg: "{{ item.name }}"
+      pvs: "{{ item.devices }}"
+      pesize: '16'
+      state: present
+    loop: "{{ volume_groups }}"
+  - name: Create logical volumes   
+    lvol:
+       lv: "{ {item.name }}"
+       vg: "{{ item.vgroup }}"
+       size: "{{ item.size }}"
+       state: present
+    loop: "{{logical_volumes}}"
+  - name: Print the size of the logical volume 
+    debug:
+      msg: "{{ansible_facts['lvm']['lvs'][item.name']['size_g']}}"
+    loop: "{{ logical_volumes }}"  
+  - name: Print the free storage on the volume group
+    debug: 
+      msg: "{{ansible_facts['lvm']['vgs'][item.name]['free_g']}}"
+    loop: "{{ volume_groups }}"  
+  - name: create logical volume if needed
+    lvol:
+      lv: "{{ item.name }}"
+      vg: "{{ item.vgroup }}"
+      size: "{{ item.size }}"
+      state: present
+    when: item.name not in ansible_lvm['lvs']
+    loop: "{{ logical_volumes }}"
+  - name: Create XFS file system 
+    filesystem:
+      dev: /dev/{{item.vgroup}}/{{item.name}}"
+      fstype: xfs
+    loop: "{{ logical_volumes }}"   
+  - name: Expand filesystem if needed 
+    lvol:
+      lv: "{{ item.name }}"
+      vg: "{{ item.vgroup }}"
+      force: yes
+      resizefs: yes
+      size: "{{ item.size }}"
+    loop: "{{ logical_volumes }}"
+  - name: create Mount point directories             
+    file:                         
+      path: "/home/ibm/templates/{{item.mount_path}}"
+      state: directory            
+      mode: 0644                  
+      recurse: yes                
+    loop: "{{ logical_volumes }}"   
+  - name: Mount the logical volume in the mount path
+    mount:
+      path: "{{ item.mount_path }}"
+      src: /dev/{{item.vgroup}}/{{item.name}}"
+      fstype: xfs
+      state: mounted
+      opts: noatime
+    loop: "{{ logical_volumes }}"  
+    
+- name: Play to add additional partition expand the volume group and logical volumes
+  hosts: '*'
+  vars_files:
+    - /rhce/vars/chapter10-GuidedExcercise-Manage-storage-vars.yml
+  tasks:
+  - name: create partition
+    parted:
+      device: /dev/sdb
+      number: "{{ item.number }}"
+      state: present
+      part_start: "{{ item.start }}"
+      part_end: "{{ item.end }}"
+  - name: Expand Volume group
+    lvg:
+      vg: "{{ item.name }}"
+      pvs: "{{ item.devices}}"
+  - name: Expand logical volume 
+    lvol:
+      lv: "{{ item.name }}"
+      vg: "{{ item.vgroup }}"
+      resizefs: yes
+      force: yes
+      size: "{{ item.size }}"
+    loop: "{{ logical_volumes }}"  

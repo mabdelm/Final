@@ -1,0 +1,11 @@
+---
+- name: This playbook will set the ntp server on managed hosts and use the variables defined in group vars
+  hosts: RHCE
+  roles: 
+    - rhel-system-roles.timesync  
+  tasks: 
+  - name: Set the timeZone 
+    timezone:
+      name: "{{timezone}}"
+  vars:
+    timezone: UTC 

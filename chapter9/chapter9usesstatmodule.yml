@@ -1,0 +1,21 @@
+---
+- name: play to check a file exists using the stat module
+  hosts: localhost
+  vars:
+    path: 
+      - ./vault-pass-200
+      - ./vault-pass
+  tasks:
+  - name: use the stat module to check if file exists
+    stat:
+      path: "{{item}}"
+    loop: "{{path}}"
+    register: out
+  - name: Print the out variable
+    debug:
+      var: out
+  - name: Print file exists using is defined  
+    debug:
+      msg: " The file in the following path {{item.stat.path}} exists"
+    loop:  "{{out.results}}"
+    when: item.stat.exists is defined 

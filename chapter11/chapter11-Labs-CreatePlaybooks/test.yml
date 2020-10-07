@@ -1,0 +1,15 @@
+---
+- name: test
+  hosts: all
+  tasks:
+  - name: print
+    debug:
+      var: ansible_facts['devices']['sda']['partitions']
+    register: results
+  - name: 
+    debug: 
+      var: results
+      
+  - command: echo hello
+    when: ' "sda1" not in results' 
+

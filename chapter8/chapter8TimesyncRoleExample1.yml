@@ -1,0 +1,17 @@
+---
+- name: This playbook will use the rhel system role time sync to synchronize the time from ntp servers on managed hosts 
+  hosts: '*'
+  roles:
+  - rhel-system-roles.timesync
+  tasks: 
+  - name: set the time Zone to UTC
+    timezone:
+      name: "{{timezone}}"      
+  vars:
+    timesync_ntp_servers:
+      - hostname: 0.rhel.pool.ntp.org
+        iburst: yes
+      - hostname: 1.rhel.pool.ntp.org
+        iburst: yes
+    timezone: UTC     
+     

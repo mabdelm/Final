@@ -1,0 +1,41 @@
+---
+- name: This playbook will create multiple user and set the access of each user to all Databases
+  hosts: all
+  vars:
+    - beatles:
+        - john
+        - paul 
+        - george
+        - ringo 
+    - category_db:
+        - lyrics
+        - concerts
+        - instruments
+     
+  tasks:
+  - name: This task will create users from the beatles variable
+    user:
+      name: "{{item}}"
+      state: present 
+    loop: "{{beatles}}"
+  - name: Install the required packages for database 
+    yum:
+      name: "{{item}}"
+      state: present 
+    loop:
+      - mariadb
+      - httpd
+  - name: create mysql databases  databases
+    mysql_db:
+      name: "{{item}}"
+      state: present 
+    loop: "{{category_db}}"
+  - name: allow each user to have access to all databases
+    mysql_user:
+      name: "{{item[0]}}"
+      priv: "{{item[1]}}.*:ALL"
+      password: password
+      state: absent
+    with_nested:
+      - "{{beatles}}"
+      - "{{category_db}}"

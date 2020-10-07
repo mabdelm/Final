@@ -1,0 +1,19 @@
+---
+- name: Enable yum repository
+  hosts: all
+  ignore_errors: yes
+  tasks: 
+  - name: RPM key 
+    rpm_key:
+      key: http://
+      state: present
+  - name: Enable Repository
+    yum_repository:
+      name: Rhel
+      description: Example INC Internal yum repo
+      file: redhat
+      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+      gpgcheck: yes
+      state: absent
+
+

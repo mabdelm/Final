@@ -1,0 +1,6 @@
+---
+# handlers file for mabdelm.mail-relay
+- name: restart postfix 
+  service: 
+    name: postfix
+    state: restarted 

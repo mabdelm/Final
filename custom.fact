@@ -1,0 +1,12 @@
+[general]
+package = httpd
+service = httpd
+state = started
+enabled = true
+# BEGIN ANSIBLE MANAGED BLOCK
+[defaults]
+db_pkg = db-server
+[users]
+user1 = rine
+user2 = aline
+# END ANSIBLE MANAGED BLOCK

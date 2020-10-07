@@ -1,0 +1,28 @@
+---
+# tasks file for mabdelm.create-users
+- name: Create users and assign them to group 
+  user: 
+    name: "{{item.name}}"
+    groups: "{{item.group}}"
+    state: absent
+    create_home: true
+    shell: "{{item.shell}}"
+  loop: "{{users}}" 
+  notify: generate ssh-keys
+- name: Ensure the public keys existance on users
+  authorized_key:
+    user: "{{item.name}}"
+    state: absent
+    key: "{{ lookup('file', '/home/{{user}}/.ssh/id_rsa.pub') }}"
+  loop: "{{users}}"
+- name: Create file in the /etc/sudoers.d
+  copy:
+    content: "%{{item.group}} ALL=(ALL) NOPASSWD:ALL"
+    dest: /etc/sudoers.d/{{item.group}}
+  loop: "{{users}}" 
+- name: Don't allow ssh access to root user
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: '^PermitRootLogin'  
+    line: 'PermitRootLogin yes'
+  notify: restart sshd

@@ -1,0 +1,6 @@
+[ftpclients]
+ansible2.example.com
+[ftpservers]
+ansible1.example.com
+ansible3.example.com
+

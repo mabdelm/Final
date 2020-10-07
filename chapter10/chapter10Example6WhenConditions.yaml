@@ -1,0 +1,10 @@
+---
+- name: Install the httpd package when the managed host os is RedHat 
+  hosts: all
+  tasks:
+  - name: Install the httpd package when the managed host os is RedHat
+    yum:
+      name: httpd
+      state: present
+    when: > 
+      (ansible_distribution == "RedHat" and ansible_distribution_version == "8.0" )

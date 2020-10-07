@@ -1,0 +1,45 @@
+---
+- name: Playbook to set Apply the selinux configuration 
+  hosts: '*'
+  vars_files:
+    - /rhce/vars/Chapter8UserSelinuxRolesandlooponvraiables_var.yml
+  pre_tasks:
+  - name: touch files
+    file:
+      path: /home/ibm/templates/{{item.name}}
+      state: touch 
+      owner: root
+      group: root
+      mode: 0644
+      setype: "{{item.setype}}"
+    loop: "{{file}}"
+  tasks:
+  - name: Apply the selinux configuration        
+    block: 
+    - name: Apply Selinux
+      include_role:
+        name: rhel-system-roles.selinux
+      vars:
+        file:
+          - name: Chapter8Rolefile1
+            setype: samba_share_t
+          - name: Chapter8Rolefile2
+            setype: samba_share_t
+        selinux_state: disabled
+        selinux_fcontexts:
+          - target: "/home/ibm/templates/{{item.name}}"
+            setype: "{{item.setype}}"
+            state: 'present'
+      loop: "{{file}}"
+    rescue:      
+    - name: Fail if Role Failed
+      fail:
+        msg: "Requires reboot"      
+      when: selinux_reboot_required    
+    - name: Reboot hosts
+      reboot:
+    - name: Apply the selinux configuration 
+      include_role:
+        name: rhel-system-roles.selinux
+
+

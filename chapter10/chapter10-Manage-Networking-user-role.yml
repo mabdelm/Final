@@ -1,0 +1,22 @@
+---
+- name: Use the time synchronization role 
+  hosts: all
+  roles:
+    - rhel-system-roles.timesync
+    - rhel-system-roles.network   
+  vars:
+    timesync_ntp_servers:
+      - hosts:  0.rhel.pool.ntp.org
+        iburst: yes 
+    network_provider: nm
+    network_connections:
+      - name: eth0
+        type: ethernet
+        state: down
+        persistent_state: present
+        interface_name: eth0
+        autoconnect: yes
+        ip:
+          address:
+            - 192.168.0.1/24
+          gateway4: 192.186.0.254         

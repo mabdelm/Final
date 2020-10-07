@@ -1,0 +1,14 @@
+---
+- name: This play will gather facts about managed hosts and print the version for specific packages
+  hosts: all
+  tasks:
+  - name: Gather Packages facts
+    package_facts:
+       manager: auto 
+  - name: List the packages 
+    debug:
+      var: ansible_facts['packages']
+  - name: Print the version packages
+    debug:
+      msg: "{{ansible_facts['packages']['yum'][0]['version']}}"    
+

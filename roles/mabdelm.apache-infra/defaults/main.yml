@@ -1,0 +1,3 @@
+---
+# defaults file for mabdelm.apache-infra
+prod_document_root: /var/www/html

@@ -1,0 +1,28 @@
+---
+# tasks file for mabdelm.apache-infra
+- name: Install the required packages
+  yum:
+    name: "{{item}}"
+    state: present
+  loop: "{{packages}}"
+- name: Enable & start the the apache web service and firewalld
+  service:
+    name: "{{item}}"
+    state: restarted
+    enabled: true
+  loop: "{{services}}"   
+- name: Permit the http traffic through the firewalld
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: true
+  notify: restart firewalld
+- name: Web configuration file
+  template: 
+    src: /rhce/roles/mabdelm.apache-infra/templates/prod.conf.j2
+    dest: /etc/httpd/conf.d/http.conf
+    owner: ibm 
+    group: root
+    mode: 0644 
+  notify: restart httpd

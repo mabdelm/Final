@@ -1,0 +1,41 @@
+---
+- name: This playbook wilk create users and assign them to groups using the with_dict
+  hosts: all
+  vars:
+    name:
+      - fred
+      - wilma
+  tasks:
+  - name: create groups
+    group:
+      name: "{{item}}"
+      state: present
+    loop: 
+      - flintstones
+      - rubbles
+  - name: create user
+    user:
+      name: "{{item}}"
+      state: present
+    loop: "{{name}}"
+  - name: use the debug module to test the with_dict
+    debug:
+      msg "{{item.value}}"
+    with_dict:
+      - { name: 'fred' , groups: 'flintstones' }
+      - { name: 'wilma' , groups: 'rubbles' }
+      - { name: 'barney' , groups: 'rubbles' }
+      - { name: 'betty' , groups: 'rubbles' }
+
+    
+  - name: this will use the with_dict to assign users to groups
+    user:
+      name: "{{item.name}}"
+      groups: "{{item.groups}}"
+      state: present
+    loop:
+      - { name: 'fred' , groups: 'flintstones' }
+      - { name: 'wilma' , groups: 'rubbles' }
+      - { name: 'barney' , groups: 'rubbles' }
+      - { name: 'betty' , groups: 'rubbles' }
+ 

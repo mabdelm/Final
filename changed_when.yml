@@ -1,0 +1,14 @@
+---
+- name: this playbook wll run a task that will always change and use notify to trigeer tasks and handl
+  hosts: all
+  tasks:
+  - name: echo Hello
+    command: echo 'Hello'
+    notify:
+      - restart db
+    changed_when: false
+  handlers:
+  - name: restart db
+    service: 
+      name: mariadb
+      state: started

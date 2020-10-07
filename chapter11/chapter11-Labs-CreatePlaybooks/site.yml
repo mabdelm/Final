@@ -1,0 +1,6 @@
+---
+- name: Configure the FTP clients
+  import_playbook: ftpclients.yml
+- name: Configure the Ftp servers
+  import_playbook: ansible-vsftpd.yml
+ 

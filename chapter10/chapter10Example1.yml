@@ -1,0 +1,16 @@
+---
+- name: This play will show how to use the yum module to install packages,group of packages and AppStream Module
+  hosts: '*'
+  tasks:
+  - name: Install httpd package
+    yum:
+      name: httpd
+      state: latest
+  - name: Install the development tools Group
+    yum:
+      name: "@Development Tools"
+      state: present
+  - name: Install The perl module version 5.26
+    yum:
+      name: "perl:5.26/minimal"
+      state: present

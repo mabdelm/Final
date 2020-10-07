@@ -1,0 +1,29 @@
+---
+- name: The playbook will configure the apache web server and permit the rules through the firewalld
+  hosts: '*.example.com'
+  serial: 1
+  tasks:
+  - name: install packages and start services
+    import_tasks: ./tasks/chapter7Labinstall_and_enable.yml
+    vars:
+      package:
+        - firewalld
+        - httpd
+      service:
+        - firewalld
+        - httpd
+  - name: Set the web content for the apache web server 
+    import_tasks: ./tasks/chapter7LabApacheconfig.yml
+    when: inventory_hostname in groups['web']
+  - name: Permit the rules 
+    import_tasks: ./tasks/chapter7Labfirewall_tasks.yml 
+    vars:
+      rule: http
+  - name: use the jinja 2 template to generate a file that contains the host facts the ipv4 & FQDN
+    import_tasks: ./tasks/chapter7LabJinja2.yml
+  handlers:
+  - name: restart httpd
+    service:
+      name: httpd
+      state: started 
+      enabled: true 

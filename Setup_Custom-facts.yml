@@ -1,0 +1,26 @@
+---
+- name: this playbook will be use the installed ansible_local facts to install th Apache web server and start the web service 
+  hosts: all
+  vars:
+    source: /rhce/custom.fact
+    destination: /etc/ansible/facts.d/
+  tasks:
+  - name: create the /etc/ansible/facts.d/
+    file:
+      path: "{{destination}}"
+      state: directory
+      recurse: yes
+  - name: install the new facts
+    copy:
+      src: "{{source}}"
+      dest: "{{destination}}"  
+  - name: install the apache we server using the local facts 
+    yum:
+      name: "{{ansible_local['custom']['general']['package']}}"
+      state: latest
+ 
+  - name: restart the web service using the local facts
+    service:
+      name: "{{ansible_local['custom']['general']['service']}}"
+      state: "{{ansible_local['custom']['general']['state']}}"
+      enabled: "{{ansible_local['custom']['general']['enabled']}}"    

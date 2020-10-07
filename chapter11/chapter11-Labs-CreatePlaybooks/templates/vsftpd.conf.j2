@@ -1,0 +1,19 @@
+connect_from_port_20={{'YES' if vsftpd_connect_from_port_20 else 'NO'}}
+listen={{'YES' if vsftpd_listen else 'NO'}}
+pam_service_name=vsftpd
+syslog_enable={{'YES' if vsftpd_syslog_enable else 'NO'}}
+anonymous_enable={{'YES' if vsftpd_anonymous_enable else 'NO'}}
+{% if vsftpd_anon_root is defined %}
+anon_root={{vsftpd_anon_root}}
+{% endif %}
+
+{% if vsftpd_local_root is defined %}
+local_root={{vsftpd_local_root}}
+{% endif %}
+local_umask 022
+write_enable={{'YES' if vsftpd_write_enable else 'NO'}}
+chroot_local_user={{'YES' if vsftpd_chroot_local_user else 'NO'}}
+passv_enable=yes
+passv_min_port=21000
+passv_max_port=21020
+

@@ -1,0 +1,41 @@
+---
+- name: Play to create and Manage users
+  hosts: all
+  vars_files:
+    - /rhce/vars/chapter10-Manageusers-guidedExcercise-vars.yml
+  tasks:
+  - name: Create group webadmin
+    group:
+      name: webadmin
+      state: present
+  - name: Create users and assign them to groups
+    user:
+      name: "{{item.username}}"
+      groups: "{{item.groups}}"
+    loop: "{{users}}" 
+  - name: Ensure that the ssh public keys have been properly distributed to users on remote hosts
+    authorized_key:
+      user: "{{item.username}}"
+      state: present
+      key: "{{ lookup('file', '/home/ibm/.ssh/id_rsa.pub') }}"
+    loop: "{{users}}"
+  - name: Allow webadmin group members to use sudo without password
+    copy:
+      content: "%webadmin ALL=(ALL) NOPASSWD:ALL"
+      dest: /etc/sudoers.d/webadmin    
+  - name: Ensure that the root user will not have ssh Access 
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regex: '^PermitRootLogin no'
+      line: PermitRootLogin yes 
+    notify: restart sshd
+  handlers:
+  - name: restart sshd
+    service: 
+      name: sshd
+      state: restarted
+ 
+    
+       
+       
+          

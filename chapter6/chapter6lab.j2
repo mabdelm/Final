@@ -1,0 +1,5 @@
+{% for host in groups['all']  %}
+{{ansible_facts['memtotal_mb']}}
+{{ansible_facts['processor_count']}}
+{% endfor %}
+

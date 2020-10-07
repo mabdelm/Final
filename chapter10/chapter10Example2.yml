@@ -1,0 +1,26 @@
+---
+- name: This play will show how to use the yum and command modules in a optimized way to install packages on managed hosts
+  hosts: '*'
+  tasks:
+  - name: Optimize  install packages on managed hosts 
+    yum:
+      name:
+        - httpd
+        - mod_ssl
+        - httpd-tools
+      state: present
+  - name: Optimize install packages on managed hosts 
+    command: yum install httpd mod_ssl httpd-tools
+- name: This play will show how to install packages in a non effecient way when loop is used
+  hosts: all
+  vars:
+    packages:
+      - httpd
+      - mod_ssl
+      - httpd-tools
+  tasks:       
+    - name: install the packages using loop keyword where three different transactions are made which are not effecient
+      yum: 
+        name: "{{item}}"  
+        state: present
+      loop: "{{packages}}"  

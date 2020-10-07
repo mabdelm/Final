@@ -1,0 +1,57 @@
+---
+- name: This play will configure the selinux using the command module 
+  hosts: '*'
+  vars:
+    files:
+      name:
+        - chapter8RolesSElinux_timesync-file3
+        - chapter8RolesSElinux_timesync-file4
+      setype:
+        - httpd_config_t
+        - samba_share_t
+  tasks:
+  - name: Import the tasks that touches files and set the selinux contexts on files using the command module 
+    import_tasks: ./tasks/chapter8RolesSElinux_timesynctasks.yml 
+- name: This play will configure the selinux using the ansible selinux related modules
+  import_playbook: ./playbooks/chapter8RolesSElinux_timesyncimport.yml
+- name: This play will use the selinux role to create selinux booleans and selinux file contexts and selinux policy
+  hosts: '*'
+  tasks:
+  - name: SELinux 
+    block:
+    - name: Selinux Apply
+      include_role: 
+        name: rhel-system-roles.selinux
+    rescue:
+    - name: fail if reboot rquired
+      fail:
+        msg: "Reboot required"
+      when: not selinux_reboot_required 
+    - name: reboot managed hosts
+      reboot:
+    - name: selinux Apply 
+      include_role: 
+        name: rhel-system-roles.selinux 
+  vars:
+    selinux_booleans:
+      name: 'http_enable_homedirs'
+      state: on 
+      persistent: yes
+    selinux_contexts: 
+      target: '/home/ibm/templates(/.*)'
+      setype: 'default_t'
+      ftype: 'd'
+      state: present
+    selinux_state: disabled
+    selinux_ports:
+      ports: '8080'
+      proto: 'tcp' 
+      setype: 'http_config_t'
+      state: present
+- name: Play to configure time synchronization using the time sync role 
+  hosts: '*'
+  roles:
+    - rhel-system-roles.timesync
+  vars:
+    timesync_ntp_severs:
+      - hosts:  

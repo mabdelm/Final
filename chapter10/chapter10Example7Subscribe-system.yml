@@ -1,0 +1,22 @@
+---
+- name: Use the redhat_subscription and redhat_rhsm to subscribe systems and Enable Redhat Repo's
+  hosts: all
+  vars_files:
+    - /rhce/vars/chapter10Example7Subscribe-system-Password-vault.yml
+  tasks:
+  - name: Subscribe the rhel system
+    redhat_subscription:
+       state: present
+       username: mabdelm@eg.ibm.com
+       password: "{{password}}"
+       pool_ids:
+  - name: Enable redhat repos with the redhat subscrition mamnager
+    rhsm_repository:
+      name:
+        - rhel-8-for-x86_64-baseos-rpms
+        - rhel-8-for-x86_64-baeos-debug-rpms 
+      state: enabled
+
+
+      
+      

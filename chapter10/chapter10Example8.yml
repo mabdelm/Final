@@ -1,0 +1,35 @@
+---
+- name: This play will create a local repoistory on managed hosts and gather package facts and print the version of specific facts 
+  hosts: all
+  vars:
+    pkg_name:
+      - httpd
+      - mariadb
+  ignore_errors: yes
+  tasks:
+  - name: Create Repository on managed hosts
+    yum_repository:
+      name: example-internal 
+      description: Example INC internal yum  
+      file: example
+      baseurl: https://servera.example.com
+      gpgcheck: yes
+      enabled: true
+      state: absent
+  - name: Ensure repo rpm key is installed 
+    rpm_key:
+      key: http://materials.example.com/yum/repository/PM-GPG-KEY-example
+      state: present
+  - name: Gather package facts
+    package_facts:
+      manager: auto 
+  - name: List packages
+    debug:
+      var: ansible_facts['packages']
+  - name: print the packages versions
+    debug:
+      var: ansible_facts['packages'][item][0]['version']
+    when: item in ansible_facts['packages']
+    loop: "{{pkg_name}}"
+
+     

@@ -1,0 +1,10 @@
+---
+- name: Generate a file that contains facts about the managed hosts
+  template: 
+    src: /rhce/chapter7LabJinja2.j2
+    dest: /home/ibm/templates/
+    owner: root
+    group: ibm
+    mode: 0644
+
+

@@ -1,0 +1,8 @@
+---
+- name: Ensure lFtp clients required packages are installed
+  hosts: ftpclients
+  tasks:
+  - name: Install the lftp package on clients
+    yum: 
+      name: lftp
+      state: absent

@@ -1,0 +1,13 @@
+---
+- name: Remove Crontab job 
+  hosts: all
+  become: true
+  tasks:
+  - name: remove crontab job 
+    cron:
+      name: Add date-time to a file
+      cron_file: /etc/cron.d/add-date-time
+      user: devops
+      state: absent
+      job: "date > /home/devops/my_datetime_cron_job"
+
