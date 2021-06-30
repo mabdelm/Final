@@ -1,33 +1,17 @@
 ---
 # tasks file for apache
-- name: Install the {{web_pkg}}
+- name: Calaculate the package list by concatinate the 2 lists apache_base_packages & apache_optional_packages
+  set_fact:
+    apache_packages: "{{apache_optional_packages | union(apache_base_packages) }}"
+- name: Check that apache_packages is installed 
   yum:
-    name: "{{web_pkg}}"
+    name: "{{apache_packages}}"
     state: present
-- name: Enable and start {{web_pkg}}
-  service:
-    name: "{{web_svc}}"
-    state: started
-    enabled: true
-- name: Install {{firewall_pkg}}
-  yum:
-    name: "{{firewall_pkg}}"
-    state: present
-- name: Enable and start {{firewall_svc}}
-  service: 
-    name: "{{firewall_svc}}"
-    state: started
-    enabled: true
-- name: Permit the http traffic
-  firewalld:
-    service: http
-    immediate: yes
-    permanent: true
-    state: enabled
-- name: Copy the webcontent
-  template:
-    src: index.html.j2
-    dest: /var/www/html/index.html
-    setype: httpd_sys_content_t
-  notify: restart services  
+# will use the enable_repo defined in the role apaches defaults if not defined omit 
+    enable_repo: "{{apache_enable_repo | default(omit,true) }}" 
+- name: use the seboolean to allow httpd connections to db     
+  seboolean:
+    name: httpd_can_network_connect_db
+    state: yes
+    persistent: yes
 

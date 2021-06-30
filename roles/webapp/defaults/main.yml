@@ -1,0 +1,6 @@
+---
+# defaults file for webapp
+webapp_message: welcome to My web server on {{ansible_hostname}}
+webapp_version : v1.0
+webapp_file_list:
+  - index.html

@@ -1,0 +1,24 @@
+---
+# tasks file for webapp
+- name: copy the content to the web root directory
+  copy:
+    content: "{{webapp_message}} (vesrion{{webapp_version}})"
+    dest: /var/www/html/index.html
+- name: use the find module to list the files in Web root directory
+  find:
+    paths: /var/www/html/
+    recurse: yes
+    file_type: file
+  register: output
+- name: use the registered variable to set the files as list in a variable after mapping on path as attribute
+  set_fact:
+    files: "{{output['files'] | map(attribute='path') | list  }}"   
+- name: make use of the relpath to create a variable files_rel_path from the files variable files in this variable should have path relative to /var/www/html
+  set_fact: 
+    webapp_rel_files: "{{files | map('relpath','/var/www/html') | list }}"
+- name: Loop over the list web_rel_files and check if there is a difference between the list and the webapp_file_list remove the file 
+  file:
+    path: "/var/www/html/{{item}}"
+    state: absent
+  loop: "{{webapp_rel_files | difference(webapp_file_list)}}"
+ 

@@ -1,0 +1,8 @@
+---
+- name: Deploy apache 
+  hosts: test_servers
+  become: true
+  roles:
+    - apache
+    - webapp
+    

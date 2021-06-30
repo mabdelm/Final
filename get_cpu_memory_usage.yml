@@ -1,0 +1,34 @@
+---
+- name: Gather CPU and memory usage from top command
+  hosts: all
+  tasks: 
+  - name: Get CPU usage 
+    shell: 'top -b -n 1'
+    register: top
+  - debug:
+      var: top
+  - name: Set CPU and memory usage facts
+    set_fact:
+      user_cpu: "{{ top.stdout_lines[2].split()[1]}}"
+      system_cpu: "{{ top.stdout_lines[2].split()[3] }}"
+      total_memory: "{{ top.stdout_lines[3].split()[3]}}"
+      free_memory: "{{ top.stdout_lines[3].split()[5]}}"
+  - name: set memory usage fact
+    set_fact:
+      memory_usage: "{{free_memory | int / total_memory | int }}"
+  - debug:
+      var: memory_usage
+  - debug:
+      var: system_cpu
+  - debug:
+      var: total_memory
+  - debug:
+      var: free_memory
+  - debug: 
+      var: memory_usage
+  - debug: 
+      msg: "{{inventory_hostname }} have CPU high utilization with system cpu utilization {{system_cpu}}%"
+    when: system_cpu > '10'
+  - debug: 
+      msg: "{{inventory_hostname }} have high memory utilization with free memory {{free_memory}}"
+    when: memory_usage <= '0.25'

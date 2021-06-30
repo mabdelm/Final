@@ -1,2 +1,4 @@
 ---
 # defaults file for apache
+apache_optional_packages: []
+apache_repo_list: []
